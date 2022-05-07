@@ -68,6 +68,7 @@ void CsubtitleBotDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT1, textArea);
+	DDX_Control(pDX, IDC_EDIT3, logText);
 }
 
 BEGIN_MESSAGE_MAP(CsubtitleBotDlg, CDialogEx)
@@ -220,7 +221,9 @@ UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 
 void CsubtitleBotDlg::OnBnClickedtestb()
 {
+	
 	AfxBeginThread(processingInterpreting, this);
+	logText.SetWindowTextW(_T("开始翻译"));
 }
 
 

@@ -42,6 +42,7 @@ public:
 	static UINT processingInterpreting(LPVOID params);
 private:
 	CEdit textArea;
+	CEdit logText;
 	std::shared_ptr<TranslationRecognizer> recognizer;
 	wstring recognizedText;
 	wstring recognizingText;

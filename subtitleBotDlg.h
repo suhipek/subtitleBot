@@ -43,6 +43,7 @@ public:
 private:
 	CEdit textArea;
 	CEdit logText;
+	CButton beginOrEndTrans;
 	bool translatingMutex;
 	std::shared_ptr<TranslationRecognizer> recognizer;
 	wstring recognizedText;

@@ -69,6 +69,7 @@ void CsubtitleBotDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT1, textArea);
 	DDX_Control(pDX, IDC_EDIT3, logText);
+	DDX_Control(pDX, testB, beginOrEndTrans);
 }
 
 BEGIN_MESSAGE_MAP(CsubtitleBotDlg, CDialogEx)
@@ -218,6 +219,7 @@ UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 	while (window->translatingMutex)
 		Sleep(500);
 	window->logText.SetWindowTextW(_T("翻译已结束"));
+	window->beginOrEndTrans.SetWindowTextW(_T("开始翻译"));
 	return 0;
 }
 
@@ -231,6 +233,7 @@ void CsubtitleBotDlg::OnBnClickedtestb()
 	}
 	translatingMutex = true;
 	AfxBeginThread(processingInterpreting, this);
+	beginOrEndTrans.SetWindowTextW(_T("结束翻译"));
 	logText.SetWindowTextW(_T("翻译已开始"));
 }
 

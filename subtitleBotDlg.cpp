@@ -171,7 +171,7 @@ UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 	CsubtitleBotDlg *window = (CsubtitleBotDlg*)params;
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 
-	auto config = SpeechTranslationConfig::FromSubscription("your-apikey", "japaneast");
+	auto config = SpeechTranslationConfig::FromSubscription("763837bfe25845f2a7fcec145868fb5d", "japaneast");
 
 	// Sets source and target languages
 	auto fromLanguage = "zh-CN";
@@ -218,6 +218,7 @@ UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 	window->recognizer->StartContinuousRecognitionAsync().get();
 	while (window->translatingMutex)
 		Sleep(500);
+	window->recognizer->StopContinuousRecognitionAsync().get();
 	window->logText.SetWindowTextW(_T("翻译已结束"));
 	window->beginOrEndTrans.SetWindowTextW(_T("开始翻译"));
 	return 0;

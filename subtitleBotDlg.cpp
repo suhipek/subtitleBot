@@ -167,7 +167,7 @@ HCURSOR CsubtitleBotDlg::OnQueryDragIcon()
 
 UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 {
-	CsubtitleBotDlg *temp = (CsubtitleBotDlg*)params;
+	CsubtitleBotDlg *window = (CsubtitleBotDlg*)params;
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 
 	auto config = SpeechTranslationConfig::FromSubscription("your-apikey", "japaneast");
@@ -179,51 +179,59 @@ UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 	config->AddTargetLanguage("en");
 
 	// Creates a translation recognizer using microphone as audio input.
-	temp->recognizer = TranslationRecognizer::FromConfig(config);
+	window->recognizer = TranslationRecognizer::FromConfig(config);
 	
 	//Subscribes to events.
-	temp->recognizer->Recognizing.Connect([&](const TranslationRecognitionEventArgs& e)
+	window->recognizer->Recognizing.Connect([&](const TranslationRecognitionEventArgs& e)
 		{
-			temp->recognizingText.clear();
-			temp->recognizingText += _T("\r\n");
-			temp->recognizingText += converter.from_bytes(e.Result->Text);
+			window->recognizingText.clear();
+			window->recognizingText += _T("\r\n");
+			window->recognizingText += converter.from_bytes(e.Result->Text);
 			for (const auto& it : e.Result->Translations)
 			{
-				temp->recognizingText += _T("\r\n");
-				temp->recognizingText += converter.from_bytes(it.second);
+				window->recognizingText += _T("\r\n");
+				window->recognizingText += converter.from_bytes(it.second);
 			}
-			temp->textArea.SetWindowTextW((temp->recognizedText + temp->recognizingText).c_str());
-			temp->textArea.LineScroll(temp->textArea.GetLineCount());
+			window->textArea.SetWindowTextW((window->recognizedText + window->recognizingText).c_str());
+			window->textArea.LineScroll(window->textArea.GetLineCount());
 		});
 
-	temp->recognizer->Recognized.Connect([&](const TranslationRecognitionEventArgs& e)
+	window->recognizer->Recognized.Connect([&](const TranslationRecognitionEventArgs& e)
 		{
-			temp->recognizedText += _T("\r\n");
-			temp->recognizedText += converter.from_bytes(e.Result->Text);
+			window->recognizedText += _T("\r\n");
+			window->recognizedText += converter.from_bytes(e.Result->Text);
 
 			for (const auto& it : e.Result->Translations)
 			{
-				temp->recognizedText += _T("\r\n");
-				temp->recognizedText += converter.from_bytes(it.second);
+				window->recognizedText += _T("\r\n");
+				window->recognizedText += converter.from_bytes(it.second);
 			}
-			temp->textArea.SetWindowTextW((temp->recognizedText + temp->recognizingText).c_str());
-			temp->textArea.LineScroll(temp->textArea.GetLineCount());
+			window->textArea.SetWindowTextW((window->recognizedText + window->recognizingText).c_str());
+			window->textArea.LineScroll(window->textArea.GetLineCount());
 		});
 	
 	for (int i = 0; i < 100; i++)
 	{
-		temp->recognizedText += _T("\r\n");
+		window->recognizedText += _T("\r\n");
 	}
-	temp->recognizer->StartContinuousRecognitionAsync().get();
-	Sleep(1<<31);
+	window->recognizer->StartContinuousRecognitionAsync().get();
+	while (window->translatingMutex)
+		Sleep(500);
+	window->logText.SetWindowTextW(_T("翻译已结束"));
 	return 0;
 }
 
 void CsubtitleBotDlg::OnBnClickedtestb()
 {
-	
+	if (translatingMutex)
+	{
+		translatingMutex = false;
+		logText.SetWindowTextW(_T("正在结束翻译"));
+		return;
+	}
+	translatingMutex = true;
 	AfxBeginThread(processingInterpreting, this);
-	logText.SetWindowTextW(_T("开始翻译"));
+	logText.SetWindowTextW(_T("翻译已开始"));
 }
 
 

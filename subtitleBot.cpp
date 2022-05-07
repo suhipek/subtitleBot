@@ -2,6 +2,8 @@
 // subtitleBot.cpp: 定义应用程序的类行为。
 //
 
+#define PHILOSOPHY 不要重新发明轮子
+
 #include "pch.h"
 #include "framework.h"
 #include "subtitleBot.h"

@@ -4,6 +4,12 @@
 
 #pragma once
 
+#include <speechapi_cxx.h>
+
+using namespace std;
+using namespace Microsoft::CognitiveServices::Speech;
+using namespace Microsoft::CognitiveServices::Speech::Audio;
+using namespace Microsoft::CognitiveServices::Speech::Translation;
 
 // CsubtitleBotDlg 对话框
 class CsubtitleBotDlg : public CDialogEx
@@ -31,4 +37,12 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedtestb();
+	static UINT processingInterpreting(LPVOID params);
+private:
+	CEdit textArea;
+	std::shared_ptr<TranslationRecognizer> recognizer;
+	wstring recognizedText;
+	wstring recognizingText;
 };

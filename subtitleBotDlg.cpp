@@ -2,15 +2,23 @@
 // subtitleBotDlg.cpp: 实现文件
 //
 
+#include <speechapi_cxx.h>
+#include <memory>
 #include "pch.h"
 #include "framework.h"
 #include "subtitleBot.h"
 #include "subtitleBotDlg.h"
 #include "afxdialogex.h"
 
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
+using namespace std;
+using namespace Microsoft::CognitiveServices::Speech;
+using namespace Microsoft::CognitiveServices::Speech::Audio;
+using namespace Microsoft::CognitiveServices::Speech::Translation;
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -59,12 +67,15 @@ CsubtitleBotDlg::CsubtitleBotDlg(CWnd* pParent /*=nullptr*/)
 void CsubtitleBotDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_EDIT1, textArea);
 }
 
 BEGIN_MESSAGE_MAP(CsubtitleBotDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(testB, &CsubtitleBotDlg::OnBnClickedtestb)
+	ON_BN_CLICKED(testB, &CsubtitleBotDlg::OnBnClickedtestb)
 END_MESSAGE_MAP()
 
 
@@ -152,4 +163,64 @@ HCURSOR CsubtitleBotDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
+
+UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
+{
+	CsubtitleBotDlg *temp = (CsubtitleBotDlg*)params;
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+
+	auto config = SpeechTranslationConfig::FromSubscription("your-apikey", "japaneast");
+
+	// Sets source and target languages
+	auto fromLanguage = "zh-CN";
+	config->SetSpeechRecognitionLanguage(fromLanguage);
+	config->AddTargetLanguage("zh-Hans");
+	config->AddTargetLanguage("en");
+
+	// Creates a translation recognizer using microphone as audio input.
+	temp->recognizer = TranslationRecognizer::FromConfig(config);
+	
+	//Subscribes to events.
+	temp->recognizer->Recognizing.Connect([&](const TranslationRecognitionEventArgs& e)
+		{
+			temp->recognizingText.clear();
+			temp->recognizingText += _T("\r\n");
+			temp->recognizingText += converter.from_bytes(e.Result->Text);
+			for (const auto& it : e.Result->Translations)
+			{
+				temp->recognizingText += _T("\r\n");
+				temp->recognizingText += converter.from_bytes(it.second);
+			}
+			temp->textArea.SetWindowTextW((temp->recognizedText + temp->recognizingText).c_str());
+			temp->textArea.LineScroll(temp->textArea.GetLineCount());
+		});
+
+	temp->recognizer->Recognized.Connect([&](const TranslationRecognitionEventArgs& e)
+		{
+			temp->recognizedText += _T("\r\n");
+			temp->recognizedText += converter.from_bytes(e.Result->Text);
+
+			for (const auto& it : e.Result->Translations)
+			{
+				temp->recognizedText += _T("\r\n");
+				temp->recognizedText += converter.from_bytes(it.second);
+			}
+			temp->textArea.SetWindowTextW((temp->recognizedText + temp->recognizingText).c_str());
+			temp->textArea.LineScroll(temp->textArea.GetLineCount());
+		});
+	
+	for (int i = 0; i < 100; i++)
+	{
+		temp->recognizedText += _T("\r\n");
+	}
+	temp->recognizer->StartContinuousRecognitionAsync().get();
+	Sleep(1<<31);
+	return 0;
+}
+
+void CsubtitleBotDlg::OnBnClickedtestb()
+{
+	AfxBeginThread(processingInterpreting, this);
+}
+
 

@@ -28,12 +28,12 @@ class CAboutDlg : public CDialogEx
 public:
 	CAboutDlg();
 
-// 对话框数据
+	// 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_ABOUTBOX };
 #endif
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 // 实现
@@ -64,12 +64,19 @@ CsubtitleBotDlg::CsubtitleBotDlg(CWnd* pParent /*=nullptr*/)
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
+CsubtitleBotDlg::~CsubtitleBotDlg()
+{
+	delete editLangW;
+	delete editApiW;
+}
+
 void CsubtitleBotDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT1, textArea);
 	DDX_Control(pDX, IDC_EDIT3, logText);
 	DDX_Control(pDX, testB, beginOrEndTrans);
+	DDX_Control(pDX, IDC_CHECK3, alwaysTop);
 }
 
 BEGIN_MESSAGE_MAP(CsubtitleBotDlg, CDialogEx)
@@ -80,6 +87,7 @@ BEGIN_MESSAGE_MAP(CsubtitleBotDlg, CDialogEx)
 	ON_BN_CLICKED(testB, &CsubtitleBotDlg::OnBnClickedtestb)
 	ON_EN_CHANGE(IDC_EDIT3, &CsubtitleBotDlg::OnEnChangeEdit3)
 	ON_COMMAND(ID_32771, &CsubtitleBotDlg::editLang)
+	ON_COMMAND(ID_32772, &CsubtitleBotDlg::openApiKeyMenu)
 END_MESSAGE_MAP()
 
 
@@ -116,7 +124,11 @@ BOOL CsubtitleBotDlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 	editLangW = new editLangDlg(this);
+	editApiW = new apiKeyDlg(this);
+	apiKey = "";
+	region = "japaneast";
 	SetWindowPos(&this->wndTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	alwaysTop.SetCheck(1);
 	inLang = 2;
 	outLang1 = 2;
 	outLang2 = 1;
@@ -175,26 +187,35 @@ HCURSOR CsubtitleBotDlg::OnQueryDragIcon()
 
 UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 {
-	CsubtitleBotDlg *window = (CsubtitleBotDlg*)params;
+	CsubtitleBotDlg* window = (CsubtitleBotDlg*)params;
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 
-	auto config = SpeechTranslationConfig::FromSubscription("763837bfe25845f2a7fcec145868fb5d", "japaneast");
+	auto config = SpeechTranslationConfig::FromSubscription(window->apiKey, window->region);
 
-	// Sets source and target languages
-	auto fromLanguage = "zh-CN";
-	config->SetSpeechRecognitionLanguage(fromLanguage);
-	config->AddTargetLanguage("zh-Hans");
-	config->AddTargetLanguage("en");
+	string inLangList[] = { "en-US", "zh-CN", "en-US", "ja-JP", "ko-KR", "fr-FR", "de-DE", "es-ES" };
+	string outLangList[] = { "", "zh-Hans", "en", "ja", "ko", "fr", "de", "es" };
+	auto autoDetectSourceLanguageConfig = AutoDetectSourceLanguageConfig::FromLanguages({ "en-US", "zh-CN" });
 
-	// Creates a translation recognizer using microphone as audio input.
-	window->recognizer = TranslationRecognizer::FromConfig(config);
-	
+	config->SetSpeechRecognitionLanguage(inLangList[window->inLang]);
+	if (window->outLang1) config->AddTargetLanguage(outLangList[window->outLang1]);
+	if (window->outLang2) config->AddTargetLanguage(outLangList[window->outLang2]);
+	if (window->outLang3) config->AddTargetLanguage(outLangList[window->outLang3]);
+
+	if (window->inLang == 0)
+	{
+		window->recognizer = TranslationRecognizer::FromConfig(config, autoDetectSourceLanguageConfig);
+	}
+	else
+	{
+		window->recognizer = TranslationRecognizer::FromConfig(config);
+	}
+
 	//Subscribes to events.
 	window->recognizer->Recognizing.Connect([&](const TranslationRecognitionEventArgs& e)
 		{
 			window->recognizingText.clear();
 			window->recognizingText += _T("\r\n");
-			window->recognizingText += converter.from_bytes(e.Result->Text);
+			//window->recognizingText += converter.from_bytes(e.Result->Text);
 			for (const auto& it : e.Result->Translations)
 			{
 				window->recognizingText += _T("\r\n");
@@ -206,9 +227,9 @@ UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 
 	window->recognizer->Recognized.Connect([&](const TranslationRecognitionEventArgs& e)
 		{
+			window->recognizingText.clear();
 			window->recognizedText += _T("\r\n");
-			window->recognizedText += converter.from_bytes(e.Result->Text);
-
+			//window->recognizedText += converter.from_bytes(e.Result->Text);
 			for (const auto& it : e.Result->Translations)
 			{
 				window->recognizedText += _T("\r\n");
@@ -217,8 +238,8 @@ UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 			window->textArea.SetWindowTextW((window->recognizedText + window->recognizingText).c_str());
 			window->textArea.LineScroll(window->textArea.GetLineCount());
 		});
-	
-	for (int i = 0; i < 50; i++)
+
+	for (int i = 0; i < 30; i++)
 	{
 		window->recognizedText += _T("\r\n");
 	}
@@ -233,7 +254,6 @@ UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 
 void CsubtitleBotDlg::OnBnClickedtestb()
 {
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 	if (translatingMutex)
 	{
 		translatingMutex = false;
@@ -257,7 +277,7 @@ void CsubtitleBotDlg::OnEnChangeEdit3()
 	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
 
 	// TODO:  在此添加控件通知处理程序代码
-	logText.SetWindowTextW(to_wstring(inLang).c_str());
+	SetWindowPos(&this->wndNoTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
 }
 
@@ -271,4 +291,15 @@ void CsubtitleBotDlg::editLang()
 	editLangW->outLang1.SetCurSel(outLang1);
 	editLangW->outLang2.SetCurSel(outLang2);
 	editLangW->outLang3.SetCurSel(outLang3);
+}
+
+
+void CsubtitleBotDlg::openApiKeyMenu()
+{
+	// TODO: 在此添加命令处理程序代码
+	editApiW->DestroyWindow();
+	editApiW->Create(IDD_APIKEY_DIALOG, this);
+	editApiW->serviceProvider.SetCurSel(0);
+	editApiW->serviceRegion.SetWindowTextW(converter.from_bytes(region).c_str());
+	editApiW->apiKey.SetWindowTextW(converter.from_bytes(apiKey).c_str());
 }

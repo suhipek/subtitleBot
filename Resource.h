@@ -9,6 +9,7 @@
 #define IDR_MAINFRAME                   128
 #define IDR_MENU1                       131
 #define IDD_LANG_DIALOG                 132
+#define IDD_APIKEY_DIALOG               135
 #define testB                           1001
 #define IDC_EDIT1                       1003
 #define IDC_EDIT3                       1015
@@ -17,6 +18,7 @@
 #define IDC_COMBO2                      1020
 #define IDC_COMBO3                      1021
 #define IDC_COMBO4                      1022
+#define IDC_EDIT2                       1022
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -25,9 +27,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        135
+#define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32774
-#define _APS_NEXT_CONTROL_VALUE         1022
+#define _APS_NEXT_CONTROL_VALUE         1023
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

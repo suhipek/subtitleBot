@@ -6,6 +6,7 @@
 
 #include <speechapi_cxx.h>
 #include "editLangDlg.h"
+#include "apiKeyDlg.h"
 
 using namespace std;
 using namespace Microsoft::CognitiveServices::Speech;
@@ -18,7 +19,7 @@ class CsubtitleBotDlg : public CDialogEx
 // 构造
 public:
 	CsubtitleBotDlg(CWnd* pParent = nullptr);	// 标准构造函数
-
+	~CsubtitleBotDlg();
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_SUBTITLEBOT_DIALOG };
@@ -42,7 +43,9 @@ public:
 	afx_msg void OnBnClickedtestb();
 	static UINT processingInterpreting(LPVOID params);
 private:
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 	editLangDlg* editLangW;
+	apiKeyDlg* editApiW;
 	CEdit textArea;
 	CEdit logText;
 	CButton beginOrEndTrans;
@@ -51,8 +54,12 @@ private:
 	wstring recognizedText;
 	wstring recognizingText;
 	int inLang, outLang1, outLang2, outLang3;
+	string apiKey, region;
 public:
 	afx_msg void OnEnChangeEdit3();
 	afx_msg void editLang();
 	friend class editLangDlg;
+	friend class apiKeyDlg;
+	afx_msg void openApiKeyMenu();
+	CButton alwaysTop;
 };

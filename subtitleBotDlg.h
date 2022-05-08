@@ -5,6 +5,7 @@
 #pragma once
 
 #include <speechapi_cxx.h>
+#include "editLangDlg.h"
 
 using namespace std;
 using namespace Microsoft::CognitiveServices::Speech;
@@ -41,6 +42,7 @@ public:
 	afx_msg void OnBnClickedtestb();
 	static UINT processingInterpreting(LPVOID params);
 private:
+	editLangDlg* editLangW;
 	CEdit textArea;
 	CEdit logText;
 	CButton beginOrEndTrans;
@@ -48,4 +50,9 @@ private:
 	std::shared_ptr<TranslationRecognizer> recognizer;
 	wstring recognizedText;
 	wstring recognizingText;
+	int inLang, outLang1, outLang2, outLang3;
+public:
+	afx_msg void OnEnChangeEdit3();
+	afx_msg void editLang();
+	friend class editLangDlg;
 };

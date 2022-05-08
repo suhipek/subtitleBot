@@ -78,6 +78,8 @@ BEGIN_MESSAGE_MAP(CsubtitleBotDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(testB, &CsubtitleBotDlg::OnBnClickedtestb)
 	ON_BN_CLICKED(testB, &CsubtitleBotDlg::OnBnClickedtestb)
+	ON_EN_CHANGE(IDC_EDIT3, &CsubtitleBotDlg::OnEnChangeEdit3)
+	ON_COMMAND(ID_32771, &CsubtitleBotDlg::editLang)
 END_MESSAGE_MAP()
 
 
@@ -113,7 +115,12 @@ BOOL CsubtitleBotDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-
+	editLangW = new editLangDlg(this);
+	SetWindowPos(&this->wndTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	inLang = 2;
+	outLang1 = 2;
+	outLang2 = 1;
+	outLang3 = 0;
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -211,7 +218,7 @@ UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 			window->textArea.LineScroll(window->textArea.GetLineCount());
 		});
 	
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 50; i++)
 	{
 		window->recognizedText += _T("\r\n");
 	}
@@ -226,6 +233,7 @@ UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 
 void CsubtitleBotDlg::OnBnClickedtestb()
 {
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 	if (translatingMutex)
 	{
 		translatingMutex = false;
@@ -239,3 +247,28 @@ void CsubtitleBotDlg::OnBnClickedtestb()
 }
 
 
+
+
+void CsubtitleBotDlg::OnEnChangeEdit3()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	logText.SetWindowTextW(to_wstring(inLang).c_str());
+
+}
+
+
+void CsubtitleBotDlg::editLang()
+{
+	// TODO: 在此添加命令处理程序代码
+	editLangW->DestroyWindow();
+	editLangW->Create(IDD_LANG_DIALOG, this);
+	editLangW->recLang.SetCurSel(inLang);
+	editLangW->outLang1.SetCurSel(outLang1);
+	editLangW->outLang2.SetCurSel(outLang2);
+	editLangW->outLang3.SetCurSel(outLang3);
+}

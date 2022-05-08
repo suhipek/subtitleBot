@@ -85,9 +85,9 @@ BEGIN_MESSAGE_MAP(CsubtitleBotDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(testB, &CsubtitleBotDlg::OnBnClickedtestb)
 	ON_BN_CLICKED(testB, &CsubtitleBotDlg::OnBnClickedtestb)
-	ON_EN_CHANGE(IDC_EDIT3, &CsubtitleBotDlg::OnEnChangeEdit3)
 	ON_COMMAND(ID_32771, &CsubtitleBotDlg::editLang)
 	ON_COMMAND(ID_32772, &CsubtitleBotDlg::openApiKeyMenu)
+	ON_BN_CLICKED(IDC_CHECK3, &CsubtitleBotDlg::OnBnClickedCheck3)
 END_MESSAGE_MAP()
 
 
@@ -266,22 +266,6 @@ void CsubtitleBotDlg::OnBnClickedtestb()
 	logText.SetWindowTextW(_T("翻译已开始"));
 }
 
-
-
-
-void CsubtitleBotDlg::OnEnChangeEdit3()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-	SetWindowPos(&this->wndNoTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-
-}
-
-
 void CsubtitleBotDlg::editLang()
 {
 	// TODO: 在此添加命令处理程序代码
@@ -302,4 +286,13 @@ void CsubtitleBotDlg::openApiKeyMenu()
 	editApiW->serviceProvider.SetCurSel(0);
 	editApiW->serviceRegion.SetWindowTextW(converter.from_bytes(region).c_str());
 	editApiW->apiKey.SetWindowTextW(converter.from_bytes(apiKey).c_str());
+}
+
+
+void CsubtitleBotDlg::OnBnClickedCheck3()
+{
+	if(alwaysTop.GetCheck())
+		SetWindowPos(&this->wndTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	else
+		SetWindowPos(&this->wndNoTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }

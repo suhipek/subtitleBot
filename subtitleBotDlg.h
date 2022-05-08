@@ -56,10 +56,10 @@ private:
 	int inLang, outLang1, outLang2, outLang3;
 	string apiKey, region;
 public:
-	afx_msg void OnEnChangeEdit3();
 	afx_msg void editLang();
 	friend class editLangDlg;
 	friend class apiKeyDlg;
 	afx_msg void openApiKeyMenu();
 	CButton alwaysTop;
+	afx_msg void OnBnClickedCheck3();
 };

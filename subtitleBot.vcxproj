@@ -212,6 +212,9 @@
     <None Include="res\subtitleBot.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\Downloads\translate_FILL0_wght400_GRAD0_opsz48.png" />
+    <Image Include="res\icon1.ico" />
+    <Image Include="res\icon2.ico" />
     <Image Include="res\subtitleBot.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

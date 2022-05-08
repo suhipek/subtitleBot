@@ -72,5 +72,14 @@
     <Image Include="res\subtitleBot.ico">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="..\..\..\Downloads\translate_FILL0_wght400_GRAD0_opsz48.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\icon1.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\icon2.ico">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

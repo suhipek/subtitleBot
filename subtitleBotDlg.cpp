@@ -125,14 +125,21 @@ BOOL CsubtitleBotDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	editLangW = new editLangDlg(this);
 	editApiW = new apiKeyDlg(this);
+
 	apiKey = "";
 	region = "japaneast";
+
 	SetWindowPos(&this->wndTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 	alwaysTop.SetCheck(1);
-	inLang = 2;
+
+	inLang = 1;
 	outLang1 = 2;
 	outLang2 = 1;
 	outLang3 = 0;
+
+	ModifyStyleEx(0, WS_EX_LAYERED);
+	SetLayeredWindowAttributes(RGB(0, 0, 0), 200, LWA_ALPHA);
+
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 

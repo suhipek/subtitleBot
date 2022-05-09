@@ -138,7 +138,7 @@ BOOL CsubtitleBotDlg::OnInitDialog()
 	outLang3 = 0;
 
 	ModifyStyleEx(0, WS_EX_LAYERED);
-	SetLayeredWindowAttributes(RGB(0, 0, 0), 200, LWA_ALPHA);
+	SetLayeredWindowAttributes(RGB(0, 0, 0), 250, LWA_ALPHA);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -261,6 +261,12 @@ UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 
 void CsubtitleBotDlg::OnBnClickedtestb()
 {
+	if (apiKey == "")
+	{
+		logText.SetWindowTextW(_T("请先填入APIKey"));
+		openApiKeyMenu();
+		return;
+	}
 	if (translatingMutex)
 	{
 		translatingMutex = false;

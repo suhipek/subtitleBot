@@ -2,6 +2,8 @@
 
 老师/助教您好，为防止信息泄露，请您使用[这个飞书链接](https://nankai.feishu.cn/file/boxcnMeqlx8riUcKGFEceVvN7Vf)获得带署名和标题页面的实验报告，造成不便，十分抱歉。
 
+![demo](demo.gif)
+
 <div STYLE="page-break-after: always;"></div>
 
 ## 目录

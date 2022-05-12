@@ -10,7 +10,6 @@
 #define IDR_MENU1                       131
 #define IDD_LANG_DIALOG                 132
 #define IDD_APIKEY_DIALOG               135
-#define IDB_PNG1                        138
 #define testB                           1001
 #define IDC_EDIT1                       1003
 #define IDC_EDIT3                       1015

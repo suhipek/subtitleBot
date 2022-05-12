@@ -52,7 +52,7 @@ private:
 	CButton beginOrEndTrans; // 开始/结束翻译按钮
 	CButton alwaysTop; // 是否置顶窗口按钮
 
-	bool translatingMutex; // 线程锁
+	bool isTranslating; // 线程锁
 	static UINT processingInterpreting(LPVOID params); // 处理翻译线程
 
 	std::shared_ptr<TranslationRecognizer> recognizer; // SDK数据

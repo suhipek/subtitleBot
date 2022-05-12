@@ -127,7 +127,7 @@ BOOL CsubtitleBotDlg::OnInitDialog()
 	editApiW = new apiKeyDlg(this);
 
 	apiKey = "";
-	region = "japaneast";
+	region = "eastasia";
 
 	SetWindowPos(&this->wndTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 	alwaysTop.SetCheck(1);
@@ -251,7 +251,7 @@ UINT CsubtitleBotDlg::processingInterpreting(LPVOID params)
 		window->recognizedText += _T("\r\n");
 	}
 	window->recognizer->StartContinuousRecognitionAsync().get();
-	while (window->translatingMutex)
+	while (window->isTranslating)
 		Sleep(500);
 	window->recognizer->StopContinuousRecognitionAsync().get();
 	window->logText.SetWindowTextW(_T("翻译已结束"));
@@ -267,16 +267,74 @@ void CsubtitleBotDlg::OnBnClickedtestb()
 		openApiKeyMenu();
 		return;
 	}
-	if (translatingMutex)
+	if (isTranslating)
 	{
-		translatingMutex = false;
 		logText.SetWindowTextW(_T("正在结束翻译"));
+		recognizer->StopContinuousRecognitionAsync();
+		logText.SetWindowTextW(_T("翻译已结束"));
+		beginOrEndTrans.SetWindowTextW(_T("开始翻译"));
+		isTranslating = false;
 		return;
 	}
-	translatingMutex = true;
-	AfxBeginThread(processingInterpreting, this);
+
+	auto config = SpeechTranslationConfig::FromSubscription(apiKey, region);
+
+	string inLangList[] = { "en-US", "zh-CN", "en-US", "ja-JP", "ko-KR", "fr-FR", "de-DE", "es-ES" };
+	string outLangList[] = { "", "zh-Hans", "en", "ja", "ko", "fr", "de", "es" };
+	auto autoDetectSourceLanguageConfig = AutoDetectSourceLanguageConfig::FromLanguages({ "en-US", "zh-CN" });
+
+	config->SetSpeechRecognitionLanguage(inLangList[inLang]);
+	if (outLang1) config->AddTargetLanguage(outLangList[outLang1]);
+	if (outLang2) config->AddTargetLanguage(outLangList[outLang2]);
+	if (outLang3) config->AddTargetLanguage(outLangList[outLang3]);
+
+	if (inLang == 0)
+	{
+		recognizer = TranslationRecognizer::FromConfig(config, autoDetectSourceLanguageConfig);
+	}
+	else
+	{
+		recognizer = TranslationRecognizer::FromConfig(config);
+	}
+
+	recognizer->Recognizing.Connect([&](const TranslationRecognitionEventArgs& e)
+		{
+			recognizingText.clear();
+			recognizingText += _T("\r\n");
+			//window->recognizingText += converter.from_bytes(e.Result->Text);
+			for (const auto& it : e.Result->Translations)
+			{
+				recognizingText += _T("\r\n");
+				recognizingText += converter.from_bytes(it.second);
+			}
+			textArea.SetWindowTextW((recognizedText + recognizingText).c_str());
+			textArea.LineScroll(textArea.GetLineCount());
+		});
+
+	recognizer->Recognized.Connect([&](const TranslationRecognitionEventArgs& e)
+		{
+			recognizingText.clear();
+			recognizedText += _T("\r\n");
+			//window->recognizedText += converter.from_bytes(e.Result->Text);
+			for (const auto& it : e.Result->Translations)
+			{
+				recognizedText += _T("\r\n");
+				recognizedText += converter.from_bytes(it.second);
+			}
+			textArea.SetWindowTextW((recognizedText + recognizingText).c_str());
+			textArea.LineScroll(textArea.GetLineCount());
+		});
+
+	for (int i = 0; i < 30; i++)
+	{
+		recognizedText += _T("\r\n");
+	}
+	recognizer->StartContinuousRecognitionAsync().get();	
+
+	isTranslating = true;
 	beginOrEndTrans.SetWindowTextW(_T("结束翻译"));
 	logText.SetWindowTextW(_T("翻译已开始"));
+	return;
 }
 
 void CsubtitleBotDlg::editLang()
